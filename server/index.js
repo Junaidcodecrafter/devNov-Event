@@ -1,7 +1,7 @@
 const express = require('express'), cors = require('cors'), bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken'), Database = require('better-sqlite3');
 const SECRET = process.env.JWT_SECRET || 'devnov-dev-secret';
-const db = new Database(__dirname + '/devnov.db');
+const db = new Database(process.env.SQLITE_PATH || __dirname + '/devnov.db');
 
 // ---------- DATA TIER ----------
 db.exec(`
@@ -27,6 +27,7 @@ if (!db.prepare('SELECT COUNT(*) c FROM events').get().c) {
 // ---------- APPLICATION TIER ----------
 const app = express();
 app.use(cors(), express.json());
+app.get('/healthz', (req, res) => res.json({ status: 'ok' }));
 const sign = u => jwt.sign({ id: u.id }, SECRET, { expiresIn: '7d' });
 const pub = u => ({ id: u.id, name: u.name, email: u.email, college: u.college });
 const auth = (required) => (req, res, next) => {
@@ -73,4 +74,5 @@ app.delete('/api/events/:id/register', auth(true), (req, res) => {
   res.json({ ok: true });
 });
 
-app.listen(4000, () => console.log('DevNov API on http://localhost:4000'));
+const port = process.env.PORT || 4000;
+app.listen(port, () => console.log(`DevNov API on port ${port}`));
