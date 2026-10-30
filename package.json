@@ -1,0 +1,3 @@
+{ "name": "devnov", "private": true,
+  "scripts": { "install:all": "npm i --prefix server && npm i --prefix client",
+    "server": "npm start --prefix server", "client": "npm run dev --prefix client" } }
